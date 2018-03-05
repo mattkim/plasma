@@ -1,7 +1,7 @@
 package plasma
 
 import (
-	"github.com/ethereum/go-ethereum/common"
+	// "github.com/ethereum/go-ethereum/common"
 	"github.com/kyokan/plasma/db"
 	"github.com/kyokan/plasma/eth"
 	"github.com/kyokan/plasma/node"
@@ -39,11 +39,11 @@ func Start(c *cli.Context) {
 	go func() {
 
 		ch := make(chan eth.DepositEvent)
-		err = client.SubscribeDeposits(common.HexToAddress(c.GlobalString("contract-addr")), ch)
+		//err = client.SubscribeDeposits(common.HexToAddress(c.GlobalString("contract-addr")), ch)
 
-		if err != nil {
-			log.Panic("Failed to subscribe to deposits: ", err)
-		}
+		//if err != nil {
+		//	log.Panic("Failed to subscribe to deposits: ", err)
+		//}
 
 		sink.AcceptDepositEvents(ch)
 	}()

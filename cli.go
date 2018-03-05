@@ -19,7 +19,8 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "node-url",
-			Value: "http://localhost:8545",
+			Value: "http://localhost:30303",
+			//Value: "http://localhost:8545",
 			Usage: "Full URL to a running geth node.",
 		},
 		cli.StringFlag{
