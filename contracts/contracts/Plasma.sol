@@ -47,10 +47,13 @@ contract Plasma {
     function createSimpleMerkleRoot(bytes txBytes) returns (bytes32) {
         bytes32 zeroBytes;
         // TODO: Why is this 130 added to the end again?
+        // This is the left and right leaf of this hash.
         bytes32 root = keccak256(keccak256(txBytes), new bytes(130));
         for (uint i = 0; i < 16; i++) {
             root = keccak256(root, zeroBytes);
             zeroBytes = keccak256(zeroBytes, zeroBytes);
         }
+
+        return root;
     }
 }
