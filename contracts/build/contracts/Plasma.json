@@ -11,6 +11,20 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "txBytes",
+          "type": "bytes"
+        }
+      ],
+      "name": "deposit2",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
       "anonymous": false,
       "inputs": [
         {
@@ -28,18 +42,18 @@
       "type": "event"
     }
   ],
-  "bytecode": "0x60606040523415600e57600080fd5b60e58061001c6000396000f300606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063d0e30db0146044575b600080fd5b604a604c565b005b7fe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c3334604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a15600a165627a7a7230582010a8782a4b923a6fdf3d9ad7df6a90a7ce7d2c2495baad10c86553ff102310d60029",
-  "deployedBytecode": "0x606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063d0e30db0146044575b600080fd5b604a604c565b005b7fe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c3334604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a15600a165627a7a7230582010a8782a4b923a6fdf3d9ad7df6a90a7ce7d2c2495baad10c86553ff102310d60029",
-  "sourceMap": "26:153:1:-;;;;;;;;;;;;;;;;;",
-  "deployedSourceMap": "26:153:1:-;;;;;;;;;;;;;;;;;;;;;;;;96:81;;;;;;;140:30;148:10;160:9;140:30;;;;;;;;;;;;;;;;;;;;;;;;;;;;96:81::o",
-  "source": "pragma solidity ^0.4.17;\n\ncontract Plasma {\n    event Deposit(address sender, uint value);\n\n    function deposit() public payable {\n        Deposit(msg.sender, msg.value);\n    }\n}",
+  "bytecode": "0x6060604052341561000f57600080fd5b6101498061001e6000396000f30060606040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063d0e30db014610051578063f8a91a7b1461005b575b600080fd5b6100596100ad565b005b6100ab600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190505061011a565b005b7fe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c3334604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a1565b505600a165627a7a723058202aee15c32979645b77be5e6e88123700a8c754e4a5dad65f87592b38fac4eff70029",
+  "deployedBytecode": "0x60606040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063d0e30db014610051578063f8a91a7b1461005b575b600080fd5b6100596100ad565b005b6100ab600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190505061011a565b005b7fe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c3334604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a1565b505600a165627a7a723058202aee15c32979645b77be5e6e88123700a8c754e4a5dad65f87592b38fac4eff70029",
+  "sourceMap": "58:332:0:-;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "58:332:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;217:81;;;;;;304:84;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;217:81;261:30;269:10;281:9;261:30;;;;;;;;;;;;;;;;;;;;;;;;;;;;217:81::o;304:84::-;;:::o",
+  "source": "pragma solidity ^0.4.17;\n\nimport './libraries/RLP.sol';\n\n\ncontract Plasma {\n    using RLP for bytes;\n    using RLP for RLP.RLPItem;\n    using RLP for RLP.Iterator;\n\n    event Deposit(address sender, uint value);\n\n    function deposit() public payable {\n        Deposit(msg.sender, msg.value);\n    }\n\n    function deposit2(bytes txBytes) public payable {\n        // TO BE IMPLEMENTED\n    }\n}\n",
   "sourcePath": "/Users/mattkim/go/src/github.com/kyokan/plasma/contracts/contracts/Plasma.sol",
   "ast": {
     "attributes": {
       "absolutePath": "/Users/mattkim/go/src/github.com/kyokan/plasma/contracts/contracts/Plasma.sol",
       "exportedSymbols": {
         "Plasma": [
-          76
+          35
         ]
       }
     },
@@ -53,9 +67,24 @@
             ".17"
           ]
         },
-        "id": 58,
+        "id": 1,
         "name": "PragmaDirective",
-        "src": "0:24:1"
+        "src": "0:24:0"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 964,
+          "absolutePath": "/Users/mattkim/go/src/github.com/kyokan/plasma/contracts/contracts/libraries/RLP.sol",
+          "file": "./libraries/RLP.sol",
+          "scope": 36,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 2,
+        "name": "ImportDirective",
+        "src": "26:29:0"
       },
       {
         "attributes": {
@@ -69,12 +98,97 @@
           "documentation": null,
           "fullyImplemented": true,
           "linearizedBaseContracts": [
-            76
+            35
           ],
           "name": "Plasma",
-          "scope": 77
+          "scope": 36
         },
         "children": [
+          {
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "RLP",
+                  "referencedDeclaration": 963,
+                  "type": "library RLP"
+                },
+                "id": 3,
+                "name": "UserDefinedTypeName",
+                "src": "86:3:0"
+              },
+              {
+                "attributes": {
+                  "name": "bytes",
+                  "type": "bytes storage pointer"
+                },
+                "id": 4,
+                "name": "ElementaryTypeName",
+                "src": "94:5:0"
+              }
+            ],
+            "id": 5,
+            "name": "UsingForDirective",
+            "src": "80:20:0"
+          },
+          {
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "RLP",
+                  "referencedDeclaration": 963,
+                  "type": "library RLP"
+                },
+                "id": 6,
+                "name": "UserDefinedTypeName",
+                "src": "111:3:0"
+              },
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "RLP.RLPItem",
+                  "referencedDeclaration": 60,
+                  "type": "struct RLP.RLPItem storage pointer"
+                },
+                "id": 7,
+                "name": "UserDefinedTypeName",
+                "src": "119:11:0"
+              }
+            ],
+            "id": 8,
+            "name": "UsingForDirective",
+            "src": "105:26:0"
+          },
+          {
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "RLP",
+                  "referencedDeclaration": 963,
+                  "type": "library RLP"
+                },
+                "id": 9,
+                "name": "UserDefinedTypeName",
+                "src": "142:3:0"
+              },
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "RLP.Iterator",
+                  "referencedDeclaration": 65,
+                  "type": "struct RLP.Iterator storage pointer"
+                },
+                "id": 10,
+                "name": "UserDefinedTypeName",
+                "src": "150:12:0"
+              }
+            ],
+            "id": 11,
+            "name": "UsingForDirective",
+            "src": "136:27:0"
+          },
           {
             "attributes": {
               "anonymous": false,
@@ -88,7 +202,7 @@
                       "constant": false,
                       "indexed": false,
                       "name": "sender",
-                      "scope": 64,
+                      "scope": 17,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -101,21 +215,21 @@
                           "name": "address",
                           "type": "address"
                         },
-                        "id": 59,
+                        "id": 12,
                         "name": "ElementaryTypeName",
-                        "src": "62:7:1"
+                        "src": "183:7:0"
                       }
                     ],
-                    "id": 60,
+                    "id": 13,
                     "name": "VariableDeclaration",
-                    "src": "62:14:1"
+                    "src": "183:14:0"
                   },
                   {
                     "attributes": {
                       "constant": false,
                       "indexed": false,
                       "name": "value",
-                      "scope": 64,
+                      "scope": 17,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -128,24 +242,24 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 61,
+                        "id": 14,
                         "name": "ElementaryTypeName",
-                        "src": "78:4:1"
+                        "src": "199:4:0"
                       }
                     ],
-                    "id": 62,
+                    "id": 15,
                     "name": "VariableDeclaration",
-                    "src": "78:10:1"
+                    "src": "199:10:0"
                   }
                 ],
-                "id": 63,
+                "id": 16,
                 "name": "ParameterList",
-                "src": "61:28:1"
+                "src": "182:28:0"
               }
             ],
-            "id": 64,
+            "id": 17,
             "name": "EventDefinition",
-            "src": "48:42:1"
+            "src": "169:42:0"
           },
           {
             "attributes": {
@@ -157,7 +271,7 @@
               ],
               "name": "deposit",
               "payable": true,
-              "scope": 76,
+              "scope": 35,
               "stateMutability": "payable",
               "superFunction": null,
               "visibility": "public"
@@ -170,9 +284,9 @@
                   ]
                 },
                 "children": [],
-                "id": 65,
+                "id": 18,
                 "name": "ParameterList",
-                "src": "112:2:1"
+                "src": "233:2:0"
               },
               {
                 "attributes": {
@@ -181,9 +295,9 @@
                   ]
                 },
                 "children": [],
-                "id": 66,
+                "id": 19,
                 "name": "ParameterList",
-                "src": "130:0:1"
+                "src": "251:0:0"
               },
               {
                 "children": [
@@ -219,13 +333,13 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 64,
+                              "referencedDeclaration": 17,
                               "type": "function (address,uint256)",
                               "value": "Deposit"
                             },
-                            "id": 67,
+                            "id": 20,
                             "name": "Identifier",
-                            "src": "140:7:1"
+                            "src": "261:7:0"
                           },
                           {
                             "attributes": {
@@ -245,18 +359,18 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 88,
+                                  "referencedDeclaration": 975,
                                   "type": "msg",
                                   "value": "msg"
                                 },
-                                "id": 68,
+                                "id": 21,
                                 "name": "Identifier",
-                                "src": "148:3:1"
+                                "src": "269:3:0"
                               }
                             ],
-                            "id": 69,
+                            "id": 22,
                             "name": "MemberAccess",
-                            "src": "148:10:1"
+                            "src": "269:10:0"
                           },
                           {
                             "attributes": {
@@ -276,70 +390,136 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 88,
+                                  "referencedDeclaration": 975,
                                   "type": "msg",
                                   "value": "msg"
                                 },
-                                "id": 70,
+                                "id": 23,
                                 "name": "Identifier",
-                                "src": "160:3:1"
+                                "src": "281:3:0"
                               }
                             ],
-                            "id": 71,
+                            "id": 24,
                             "name": "MemberAccess",
-                            "src": "160:9:1"
+                            "src": "281:9:0"
                           }
                         ],
-                        "id": 72,
+                        "id": 25,
                         "name": "FunctionCall",
-                        "src": "140:30:1"
+                        "src": "261:30:0"
                       }
                     ],
-                    "id": 73,
+                    "id": 26,
                     "name": "ExpressionStatement",
-                    "src": "140:30:1"
+                    "src": "261:30:0"
                   }
                 ],
-                "id": 74,
+                "id": 27,
                 "name": "Block",
-                "src": "130:47:1"
+                "src": "251:47:0"
               }
             ],
-            "id": 75,
+            "id": 28,
             "name": "FunctionDefinition",
-            "src": "96:81:1"
+            "src": "217:81:0"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "deposit2",
+              "payable": true,
+              "scope": 35,
+              "stateMutability": "payable",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "txBytes",
+                      "scope": 34,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bytes memory",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bytes",
+                          "type": "bytes storage pointer"
+                        },
+                        "id": 29,
+                        "name": "ElementaryTypeName",
+                        "src": "322:5:0"
+                      }
+                    ],
+                    "id": 30,
+                    "name": "VariableDeclaration",
+                    "src": "322:13:0"
+                  }
+                ],
+                "id": 31,
+                "name": "ParameterList",
+                "src": "321:15:0"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 32,
+                "name": "ParameterList",
+                "src": "352:0:0"
+              },
+              {
+                "attributes": {
+                  "statements": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 33,
+                "name": "Block",
+                "src": "352:36:0"
+              }
+            ],
+            "id": 34,
+            "name": "FunctionDefinition",
+            "src": "304:84:0"
           }
         ],
-        "id": 76,
+        "id": 35,
         "name": "ContractDefinition",
-        "src": "26:153:1"
+        "src": "58:332:0"
       }
     ],
-    "id": 77,
+    "id": 36,
     "name": "SourceUnit",
-    "src": "0:179:1"
+    "src": "0:391:0"
   },
   "compiler": {
     "name": "solc",
     "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
   },
   "networks": {
-    "3": {
-      "events": {},
-      "links": {},
-      "address": "0xd1d7dddd82189ea452eb5e104d13f0ca367887d9"
-    },
-    "4447": {
-      "events": {},
-      "links": {},
-      "address": "0x345ca3e014aaf5dca488057592ee47305d9b3e10"
-    },
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x345ca3e014aaf5dca488057592ee47305d9b3e10"
+      "address": "0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f"
     }
   },
   "schemaVersion": "1.0.1",
-  "updatedAt": "2018-03-09T20:09:23.639Z"
+  "updatedAt": "2018-03-09T20:37:41.672Z"
 }
