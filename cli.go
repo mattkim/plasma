@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/kyokan/plasma/db"
 	"github.com/kyokan/plasma/plasma"
 	"github.com/urfave/cli"
-	"os"
 )
 
 func main() {
@@ -18,9 +19,10 @@ func main() {
 			Usage: "Filepath for Plasma's database.",
 		},
 		cli.StringFlag{
-			Name:  "node-url",
-			Value: "http://localhost:30303",
+			Name: "node-url",
+			//Value: "http://localhost:30303",
 			//Value: "http://localhost:8545",
+			Value: "http://localhost:7545", // Migrations
 			Usage: "Full URL to a running geth node.",
 		},
 		cli.StringFlag{
