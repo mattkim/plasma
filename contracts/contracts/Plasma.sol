@@ -6,4 +6,8 @@ contract Plasma {
     function deposit() public payable {
         Deposit(msg.sender, msg.value);
     }
+
+    function deposit2(bytes txBytes) public payable {
+        // TO BE IMPLEMENTED
+    }
 }
