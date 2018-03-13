@@ -1,12 +1,13 @@
 package rpc
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/kyokan/plasma/chain"
-	"github.com/kyokan/plasma/node"
 	"log"
 	"math/big"
 	"net/http"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/kyokan/plasma/chain"
+	"github.com/kyokan/plasma/node"
 )
 
 type SendArgs struct {
@@ -39,6 +40,8 @@ func (t *TransactionService) Send(r *http.Request, args *SendArgs, reply *SendRe
 
 	ch := make(chan node.TransactionRequest)
 	t.TxChan <- ch
+
+	// TODO: I think this is a bug...
 	ch <- req
 	res := <-ch
 	close(ch)

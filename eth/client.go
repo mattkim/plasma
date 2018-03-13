@@ -2,16 +2,20 @@ package eth
 
 import (
 	"context"
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/kyokan/plasma/util"
+	"fmt"
 	"log"
 	"math/big"
 	"strings"
+
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
+
+	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/kyokan/plasma/util"
 )
 
 const depositFilter = "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c"
@@ -28,6 +32,7 @@ type Client struct {
 }
 
 func NewClient(url string) (*Client, error) {
+	fmt.Println(url)
 	c, err := rpc.Dial(url)
 
 	if err != nil {
@@ -51,6 +56,30 @@ func (c *Client) SignData(addr *common.Address, data []byte) ([]byte, error) {
 	return res, nil
 }
 
+func (c *Client) Subscribe(address common.Address) {
+	filter := ethereum.FilterQuery{}
+	filter.Addresses = make([]common.Address, 0)
+	filter.Addresses = append(filter.Addresses, address)
+	filter.FromBlock = big.NewInt(0)
+	filter.Topics = [][]common.Hash{{common.HexToHash(depositFilter)}}
+
+	// // Is this why it doesn't work?
+	// ctx := context.TODO()
+
+	// logs, _ := c.typedClient.FilterLogs(ctx, filter)
+	// fmt.Println(len(logs)) // Ouptuts '143'
+
+	ctx := context.Background()
+	ch := make(chan types.Log)
+	c.typedClient.SubscribeFilterLogs(ctx, filter, ch)
+
+	for true {
+		log := <-ch
+		fmt.Println("Matching log encountered")
+		fmt.Println(log)
+	}
+}
+
 func (c *Client) SubscribeDeposits(address common.Address, resChan chan<- DepositEvent) error {
 	query := ethereum.FilterQuery{
 		FromBlock: nil,
@@ -59,8 +88,10 @@ func (c *Client) SubscribeDeposits(address common.Address, resChan chan<- Deposi
 		Addresses: []common.Address{address},
 	}
 
-	ch := make(chan types.Log)
-	_, err := c.typedClient.SubscribeFilterLogs(context.TODO(), query, ch)
+	// ch := make(chan types.Log)
+	ch := make(chan types.Log, 2)
+
+	s, err := c.typedClient.SubscribeFilterLogs(context.TODO(), query, ch)
 
 	if err != nil {
 		return err
@@ -74,9 +105,16 @@ func (c *Client) SubscribeDeposits(address common.Address, resChan chan<- Deposi
 		return err
 	}
 
+	// Errors on the channel.
+	errChan := s.Err()
+
 	go func() {
 		for {
 			select {
+			case err := <-errChan:
+				// TODO: log error for real.
+				log.Printf("Logs subscription error: %v", err)
+				break
 			case event := <-ch:
 				parseDepositEvent(&depositAbi, resChan, &event)
 			}

@@ -1,13 +1,14 @@
 package plasma
 
 import (
-	// "github.com/ethereum/go-ethereum/common"
+	"log"
+
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/kyokan/plasma/db"
 	"github.com/kyokan/plasma/eth"
 	"github.com/kyokan/plasma/node"
 	"github.com/kyokan/plasma/rpc"
 	"github.com/urfave/cli"
-	"log"
 )
 
 func Start(c *cli.Context) {
@@ -36,14 +37,20 @@ func Start(c *cli.Context) {
 		sink.AcceptTransactionRequests(chch)
 	}()
 
+	// TODO: simulate deposits?
+	// Can their own wallet do deposits on their behalf in a convenient way?
+	// Because we need them to sign the transaction in order to submit a deposit
+	// request.
 	go func() {
 
 		ch := make(chan eth.DepositEvent)
-		//err = client.SubscribeDeposits(common.HexToAddress(c.GlobalString("contract-addr")), ch)
+		// TODO: debug this.
+		client.Subscribe(common.HexToAddress(c.GlobalString("contract-addr")))
+		// err = client.SubscribeDeposits(common.HexToAddress(c.GlobalString("contract-addr")), ch)
 
-		//if err != nil {
-		//	log.Panic("Failed to subscribe to deposits: ", err)
-		//}
+		// if err != nil {
+		// 	log.Panic("Failed to subscribe to deposits: ", err)
+		// }
 
 		sink.AcceptDepositEvents(ch)
 	}()

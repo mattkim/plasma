@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kyokan/plasma/client"
 	"github.com/kyokan/plasma/db"
 	"github.com/kyokan/plasma/plasma"
 	"github.com/urfave/cli"
@@ -22,12 +23,14 @@ func main() {
 			Name: "node-url",
 			//Value: "http://localhost:30303",
 			//Value: "http://localhost:8545",
-			Value: "http://localhost:7545", // Migrations
+			// Value: "http://127.0.0.1:8546", // Migrations
+			Value: "ws://127.0.0.1:8546",
 			Usage: "Full URL to a running geth node.",
 		},
 		cli.StringFlag{
-			Name:  "contract-addr",
-			Value: "0xd1d7dddd82189ea452eb5e104d13f0ca367887d9",
+			Name: "contract-addr",
+			// Value: "0xd1d7dddd82189ea452eb5e104d13f0ca367887d9",
+			Value: "0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f",
 			Usage: "Plasma contract address.",
 		},
 	}
@@ -68,6 +71,11 @@ func main() {
 					Usage: "The address to print UTXOs for.",
 				},
 			},
+		},
+		{
+			Name:   "client",
+			Usage:  "Runs client tests.",
+			Action: client.Main,
 		},
 	}
 
