@@ -10,6 +10,7 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
+	"time"
 
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
@@ -17,6 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -26,6 +28,12 @@ import (
 	"github.com/urfave/cli"
 )
 
+const (
+	SIGN_PASSPHRASE     = "test"
+	DEPOSIT_FILTER      = "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c"
+	DEPOSIT_DESCRIPTION = `[{"anonymous":false,"inputs":[{"indexed":false,"name":"sender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Deposit","type":"event"}]`
+)
+
 type DepositEvent struct {
 	Sender common.Address
 	Value  *big.Int
@@ -33,26 +41,76 @@ type DepositEvent struct {
 
 func Main(c *cli.Context) {
 	fmt.Println("Hello World")
-	// contractAddress := c.GlobalString("contract-addr")
-	// nodeUrl := c.GlobalString("node-url")
 
-	// userAddress := "627306090abaB3A6e1400e9345bC60c78a8BEf57"
-	// privateKey := "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
-	// depositFilter := "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c"
-	// depositDescription := `[{"anonymous":false,"inputs":[{"indexed":false,"name":"sender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Deposit","type":"event"}]`
+	contractAddress := c.GlobalString("contract-addr")
+	nodeUrl := c.GlobalString("node-url")
+
+	keystoreDir := "/Users/mattkim/geth/chain/keystore"
+	keystoreFile := "/Users/mattkim/geth/chain/keystore/UTC--2018-03-13T17-33-34.839516799Z--44a5cae1ebd47c415630da1e2131b71d1f2f5803"
+	userAddress := "44a5cae1ebd47c415630da1e2131b71d1f2f5803"
+	keyWrapper := getFromKeyStore(userAddress, keystoreDir, keystoreFile)
 
 	// makeKey()
 	// getCurrentChildBlock(nodeUrl, contractAddress)
 	// getPendingNonce(nodeUrl, userAddress)
-
 	// filter(nodeUrl, contractAddress, depositFilter, depositDescription)
 	// plasmaFilter(nodeUrl, contractAddress)
-	// plasmaWatchFilter(nodeUrl, contractAddress)
-	getFromKeyStore()
-	// for i := 0; i < 3; i++ {
-	// 	deposit(nodeUrl, contractAddress, userAddress, privateKey)
-	// }
+
+	for i := uint64(0); i < uint64(1); i++ {
+		deposit(nodeUrl, contractAddress, userAddress, keyWrapper.PrivateKey, i)
+		time.Sleep(2000 * time.Millisecond)
+	}
+
+	// slipperWatchFilter(nodeUrl, contractAddress)
+	plasmaWatchFilter(nodeUrl, contractAddress)
+
+	for i := uint64(1); i < uint64(2); i++ {
+		deposit(nodeUrl, contractAddress, userAddress, keyWrapper.PrivateKey, i)
+		time.Sleep(2000 * time.Millisecond)
+	}
+
 	select {}
+}
+
+func slipperWatchFilter(nodeUrl string, contractAddress string) {
+	conn, err := ethclient.Dial(nodeUrl)
+
+	if err != nil {
+		log.Panic("Failed to start ETH client: ", err)
+	}
+
+	query := ethereum.FilterQuery{
+		FromBlock: nil,
+		ToBlock:   nil,
+		Topics:    [][]common.Hash{{common.HexToHash(DEPOSIT_FILTER)}},
+		Addresses: []common.Address{common.HexToAddress(contractAddress)},
+	}
+
+	// ch := make(chan types.Log)
+	ch := make(chan types.Log, 2)
+
+	s, err := conn.SubscribeFilterLogs(context.Background(), query, ch)
+
+	if err != nil {
+		panic(err)
+	}
+
+	// Errors on the channel.
+	errChan := s.Err()
+
+	go func() {
+		for {
+			select {
+			case err := <-errChan:
+				// TODO: log error for real.
+				log.Printf("Logs subscription error: %v", err)
+				break
+			case event := <-ch:
+				fmt.Println("get something on the channel")
+				fmt.Println(event)
+			}
+		}
+	}()
 }
 
 func plasmaWatchFilter(nodeUrl string, contractAddress string) {
@@ -76,17 +134,22 @@ func plasmaWatchFilter(nodeUrl string, contractAddress string) {
 
 	ch := make(chan *contracts.PlasmaDeposit)
 
-	plasma.WatchDeposit(&opts, ch)
+	s, err := plasma.WatchDeposit(&opts, ch)
+
+	if err != nil {
+		panic(err)
+	}
 
 	go func() {
 		for true {
 			select {
-			// case err := <-s.Err():
-			// 	fmt.Println("**** found error!")
-			// 	fmt.Println(err)
+			case err := <-s.Err():
+				fmt.Println("**** found error!")
+				fmt.Println(err)
 			case event := <-ch:
 				fmt.Println("**** found event!")
-				fmt.Println(event)
+				fmt.Println(event.Sender.Hex())
+				fmt.Println(event.Value)
 				break
 			}
 		}
@@ -172,7 +235,7 @@ func filter(nodeUrl string, contractAddress string, depositFilter string, deposi
 	}
 }
 
-func deposit(nodeUrl string, contractAddress string, userAddress string, privateKey string) {
+func deposit(nodeUrl string, contractAddress string, userAddress string, privateKeyECDSA *ecdsa.PrivateKey, value uint64) {
 	conn, err := ethclient.Dial(nodeUrl)
 
 	if err != nil {
@@ -186,12 +249,13 @@ func deposit(nodeUrl string, contractAddress string, userAddress string, private
 		log.Fatalf("Failed to instantiate a Token contract: %v", err)
 	}
 
-	privateKeyECDSA := getPrivateKeyECDSA(privateKey)
 	auth := bind.NewKeyedTransactor(privateKeyECDSA)
 
 	if err != nil {
 		panic(err)
 	}
+
+	auth.Value = new(big.Int).SetUint64(value)
 
 	tx, err := plasma.Deposit(auth)
 
@@ -267,24 +331,16 @@ func makeKey() {
 	fmt.Println(publicKey.Hex())
 }
 
-const (
-	KEYJSON_FILEDIR   = `/var/folders/vl/q9_v72n10cnd5tp0_014p4zr0000gn/T/go-ethereum-keystore061436836/UTC--2018-03-13T06-42-13.124847499Z--939597e3bc2bdb25e0a0bbe009ad1aeaae901400`
-	SIGN_PASSPHRASE   = ""
-	KEYSTORE_DIR      = `/var/folders/vl/q9_v72n10cnd5tp0_014p4zr0000gn/T/go-ethereum-keystore061436836`
-	COINBASE_ADDR_HEX = `0x939597e3bc2bdb25e0a0bbe009ad1aeaae901400`
-)
-
-func getFromKeyStore() {
+func getFromKeyStore(addr string, keystoreDir string, keystoreFile string) *keystore.Key {
 	// Init a keystore
 	ks := keystore.NewKeyStore(
-		KEYSTORE_DIR,
+		keystoreDir,
 		keystore.LightScryptN,
 		keystore.LightScryptP)
-	fmt.Println()
 
 	// Create account definitions
 	fromAccDef := accounts.Account{
-		Address: common.HexToAddress(COINBASE_ADDR_HEX),
+		Address: common.HexToAddress(addr),
 	}
 
 	// Find the signing account
@@ -302,7 +358,7 @@ func getFromKeyStore() {
 	}
 
 	// Open the account key file
-	keyJson, readErr := ioutil.ReadFile(KEYJSON_FILEDIR)
+	keyJson, readErr := ioutil.ReadFile(keystoreFile)
 	if readErr != nil {
 		fmt.Println("key json read error:")
 		panic(readErr)
@@ -314,8 +370,8 @@ func getFromKeyStore() {
 		fmt.Println("key decrypt error:")
 		panic(keyErr)
 	}
-	fmt.Printf("key extracted: addr=%s", keyWrapper.Address.String())
 
+	return keyWrapper
 }
 
 func getPendingNonce(nodeUrl string, userAddress string) uint64 {

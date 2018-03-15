@@ -45,8 +45,8 @@ func Start(c *cli.Context) {
 
 		ch := make(chan eth.DepositEvent)
 		// TODO: debug this.
-		client.Subscribe(common.HexToAddress(c.GlobalString("contract-addr")))
-		// err = client.SubscribeDeposits(common.HexToAddress(c.GlobalString("contract-addr")), ch)
+		// client.Subscribe(common.HexToAddress(c.GlobalString("contract-addr")))
+		err = client.SubscribeDeposits(common.HexToAddress(c.GlobalString("contract-addr")), ch)
 
 		// if err != nil {
 		// 	log.Panic("Failed to subscribe to deposits: ", err)
